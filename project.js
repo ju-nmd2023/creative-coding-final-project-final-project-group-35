@@ -56,8 +56,9 @@ function drawSkyScrolling() {
 
 function drawSquares() {
   for (const square of squares) {
-    let brightness = map(square.y, 0, height + maxScroll, 0.5, 1.2);
-    brightness = constrain(brightness, 0.5, 1.2);
+    const t = square.y / (height + maxScroll);
+    const brightness = lerp(0.5, 2.5, t);
+    const sizeBoost = lerp(1.0, 2.8, t);
 
     fill(
       min(square.col[0] * brightness, 255),
@@ -66,7 +67,13 @@ function drawSquares() {
       square.col[3]
     );
 
-    rect(square.x, square.y, square.size, square.size, square.cornerRadius);
+    rect(
+      square.x,
+      square.y,
+      square.size * sizeBoost,
+      square.size * sizeBoost,
+      square.cornerRadius
+    );
   }
 }
 
