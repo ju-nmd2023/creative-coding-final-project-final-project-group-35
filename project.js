@@ -55,25 +55,31 @@ function drawSkyScrolling() {
 }
 
 function drawSquares() {
+  const yOffset = scroll < maxScroll ? scroll : maxScroll;
   for (const square of squares) {
-    const t = square.y / (height + maxScroll);
-    const brightness = lerp(0.5, 2.5, t);
-    const sizeBoost = lerp(1.0, 2.8, t);
+    if (
+      square.y + square.size * 2 > yOffset &&
+      square.y - square.size * 2 < yOffset + height
+    ) {
+      const t = square.y / (height + maxScroll);
+      const brightness = lerp(0.5, 2.5, t);
+      const sizeBoost = lerp(1.0, 2.8, t);
 
-    fill(
-      min(square.col[0] * brightness, 255),
-      min(square.col[1] * brightness, 255),
-      min(square.col[2] * brightness, 255),
-      square.col[3]
-    );
+      fill(
+        min(square.col[0] * brightness, 255),
+        min(square.col[1] * brightness, 255),
+        min(square.col[2] * brightness, 255),
+        square.col[3]
+      );
 
-    rect(
-      square.x,
-      square.y,
-      square.size * sizeBoost,
-      square.size * sizeBoost,
-      square.cornerRadius
-    );
+      rect(
+        square.x,
+        square.y,
+        square.size * sizeBoost,
+        square.size * sizeBoost,
+        square.cornerRadius
+      );
+    }
   }
 }
 
