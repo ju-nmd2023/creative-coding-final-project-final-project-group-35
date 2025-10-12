@@ -105,8 +105,12 @@ function drawSkyScrolling() {
 
 function drawSquares() {
   const yOffset = scroll < maxScroll ? scroll : maxScroll;
+  const xOffset = scroll < maxScroll ? 0 : hScroll;
+
   for (const square of squares) {
     if (
+      square.x + square.size * 2 > xOffset &&
+      square.x - square.size * 2 < xOffset + width &&
       square.y + square.size * 2 > yOffset &&
       square.y - square.size * 2 < yOffset + height
     ) {
