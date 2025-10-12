@@ -2,12 +2,21 @@ let scroll = 0;
 let maxScroll;
 let squares = [];
 
+const starCount = 100;
+let stars = [];
+let starLayer;
+
 function setup() {
   createCanvas(innerWidth, innerHeight);
   noStroke();
   background(20, 30, 60);
 
+  // The use of createGraphics function was provided by perplexity, referencing p5js documentation.
+  // Link - https://www.perplexity.ai/search/i-m-working-on-a-project-using-mnRYqlI4Rg2g.NlV_rvFZA#0
+  starLayer = createGraphics(width, height);
+
   setupSky();
+  setupStars();
 }
 
 function setupSky() {
@@ -40,6 +49,39 @@ function setupSky() {
   }
 }
 
+function setupStars() {
+  initializeStars();
+  drawStarsLayer();
+}
+
+function initializeStars() {
+  stars = Array.from({ length: starCount }, () => {
+    return {
+      x: random(width),
+      y: random() * random() * height,
+      r: random(0.6, 2.0),
+      base: random(180, 255),
+    };
+  });
+}
+
+function drawStarsLayer() {
+  starLayer.clear();
+  starLayer.noStroke();
+
+  starLayer.drawingContext.shadowBlur = 6;
+  starLayer.drawingContext.shadowColor = "rgba(255,255,255,0.7)";
+
+  for (const star of stars) {
+    const verticalPositionRatio = constrain(star.y / height, 0, 1);
+    const brightnessFade = lerp(1.0, 0.2, verticalPositionRatio);
+    const grayLevel = star.base * brightnessFade;
+
+    starLayer.fill(grayLevel, grayLevel, grayLevel, 230);
+    starLayer.circle(star.x, star.y, star.r * 2);
+  }
+}
+
 function draw() {
   background(20, 30, 60);
   drawSkyScrolling();
@@ -50,6 +92,7 @@ function drawSkyScrolling() {
   translate(0, -scroll);
 
   drawSquares();
+  image(starLayer, 0, 0);
 
   pop();
 }
