@@ -1,5 +1,5 @@
-let scroll = 0;
-let maxScroll;
+let yScroll = 0;
+let maxYScroll;
 let squares = [];
 let hScroll = 0;
 let maxHScroll;
@@ -26,16 +26,16 @@ function setupSky() {
   const maxSize = 50;
   const density = 0.006;
 
-  maxScroll = height * 4;
+  maxYScroll = height * 4;
   maxHScroll = width * 2;
 
-  const totalSquares = int(width * (height + maxScroll) * density);
+  const totalSquares = int(width * (height + maxYScroll) * density);
   squares = [];
 
   for (let i = 0; i < totalSquares; i++) {
     const size = random(minSize, maxSize);
     const x = random(-size / 2, width + maxHScroll - size / 2);
-    const y = random(-size / 2, height + maxScroll - size / 2);
+    const y = random(-size / 2, height + maxYScroll - size / 2);
     const r = random(18, 32);
     const g = random(30, 54);
     const b = random(80, 140);
@@ -92,20 +92,20 @@ function draw() {
 
 function drawSkyScrolling() {
   push();
-  if (scroll < maxScroll) {
-  translate(0, -scroll);
+  if (yScroll < maxYScroll) {
+    translate(0, -yScroll);
     drawSquares();
   } else {
-    translate(-hScroll, -maxScroll);
-  drawSquares();
+    translate(-hScroll, -maxYScroll);
+    drawSquares();
   }
   image(starLayer, 0, 0);
   pop();
 }
 
 function drawSquares() {
-  const yOffset = scroll < maxScroll ? scroll : maxScroll;
-  const xOffset = scroll < maxScroll ? 0 : hScroll;
+  const yOffset = yScroll < maxYScroll ? yScroll : maxYScroll;
+  const xOffset = yScroll < maxYScroll ? 0 : hScroll;
 
   for (const square of squares) {
     if (
@@ -114,7 +114,7 @@ function drawSquares() {
       square.y + square.size * 2 > yOffset &&
       square.y - square.size * 2 < yOffset + height
     ) {
-      const t = square.y / (height + maxScroll);
+      const t = square.y / (height + maxYScroll);
       const brightness = lerp(0.5, 2.5, t);
       const sizeBoost = lerp(1.0, 2.8, t);
 
@@ -137,8 +137,8 @@ function drawSquares() {
 }
 
 function mouseWheel(event) {
-  if (scroll < maxScroll) {
-  scroll = constrain(scroll + event.deltaY, 0, maxScroll);
+  if (yScroll < maxYScroll) {
+    yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
   } else {
     hScroll = constrain(hScroll + event.deltaY, 0, maxHScroll);
   }
