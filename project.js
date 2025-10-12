@@ -1,6 +1,8 @@
 let scroll = 0;
 let maxScroll;
 let squares = [];
+let hScroll = 0;
+let maxHScroll;
 
 const starCount = 100;
 let stars = [];
@@ -25,13 +27,14 @@ function setupSky() {
   const density = 0.006;
 
   maxScroll = height * 4;
+  maxHScroll = width * 2;
 
   const totalSquares = int(width * (height + maxScroll) * density);
   squares = [];
 
   for (let i = 0; i < totalSquares; i++) {
     const size = random(minSize, maxSize);
-    const x = random(-size / 2, width - size / 2);
+    const x = random(-size / 2, width + maxHScroll - size / 2);
     const y = random(-size / 2, height + maxScroll - size / 2);
     const r = random(18, 32);
     const g = random(30, 54);
@@ -89,11 +92,14 @@ function draw() {
 
 function drawSkyScrolling() {
   push();
+  if (scroll < maxScroll) {
   translate(0, -scroll);
-
+    drawSquares();
+  } else {
+    translate(-hScroll, -maxScroll);
   drawSquares();
+  }
   image(starLayer, 0, 0);
-
   pop();
 }
 
@@ -127,6 +133,10 @@ function drawSquares() {
 }
 
 function mouseWheel(event) {
+  if (scroll < maxScroll) {
   scroll = constrain(scroll + event.deltaY, 0, maxScroll);
+  } else {
+    hScroll = constrain(hScroll + event.deltaY, 0, maxHScroll);
+  }
   return false;
 }
