@@ -1,8 +1,8 @@
 let yScroll = 0;
-let maxYScroll;
+let maxYScroll = 3328;
 let squares = [];
 let hScroll = 0;
-let maxHScroll;
+let maxHScroll = 2560;
 
 const starCount = 100;
 let stars = [];
