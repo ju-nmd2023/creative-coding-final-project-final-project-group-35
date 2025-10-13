@@ -140,7 +140,15 @@ function mouseWheel(event) {
   if (yScroll < maxYScroll) {
     yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
   } else {
+    if (event.deltaY > 0 || hScroll > 0) {
     hScroll = constrain(hScroll + event.deltaY, 0, maxHScroll);
+      if (hScroll <= 0 && event.deltaY < 0) {
+        yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
+        hScroll = 0;
+      }
+    } else {
+      yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
+    }
   }
   return false;
 }
