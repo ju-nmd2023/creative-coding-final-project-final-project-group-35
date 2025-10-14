@@ -99,7 +99,6 @@ function drawSkyScrolling() {
     translate(0, -yScroll);
     drawSquares();
     drawGround();
-    drawFields();
 
     let cloudYOffset = yScroll - 1200;
     if (cloudYOffset < 0) cloudYOffset = 0;
@@ -109,7 +108,6 @@ function drawSkyScrolling() {
     translate(-hScroll, -maxYScroll);
     drawSquares();
     drawGround();
-    drawFields();
 
     image(cloudLayer, -hScroll, -(maxYScroll - 1200));
   }
