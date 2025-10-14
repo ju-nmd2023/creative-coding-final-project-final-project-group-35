@@ -3,8 +3,12 @@ import { drawMountain } from "./layers/mountains.js";
 import { drawSky } from "./layers/sky.js";
 import { setupClouds, cloudLayer } from "./layers/clouds.js";
 import { setupSky } from "./layers/sky.js";
-import { setupStars, starLayer } from "./layers/stars.js";
-
+import {
+  setupStars,
+  starLayer,
+  drawStarsLayer,
+  isStarsInView,
+} from "./layers/stars.js";
 export let yScroll = 0;
 export let maxYScroll = 3328;
 export let hScroll = 0;
@@ -41,7 +45,11 @@ window.draw = function () {
     drawGround();
     image(cloudLayer, -hScroll, -(maxYScroll - 1200));
   }
-  image(starLayer, 0, 0);
+  drawStarsLayer();
+  if (isStarsInView()) {
+    image(starLayer, 0, 0);
+  }
+
   pop();
 };
 

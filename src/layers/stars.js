@@ -1,6 +1,12 @@
+import { yScroll, maxYScroll } from "../project.js";
+
 export let starLayer;
 export let stars = [];
-const starCount = 100;
+let shootingStars = [];
+let perlinT = 0;
+let lastShootTime = 0;
+let nextShootIn = 350;
+let cachedVisibility = false;
 
 export function setupStars() {
   starLayer = createGraphics(width, height);
@@ -8,25 +14,169 @@ export function setupStars() {
   drawStarsLayer();
 }
 
+// Glowing star logic adpeted from perplexity
+// Link - https://www.perplexity.ai/search/i-m-working-on-a-p5js-project-oPp2gsb9QYCPPUMrNgfWPg#2
 function initializeStars() {
-  stars = Array.from({ length: starCount }, () => ({
-    x: random(width),
-    y: random() * random() * height,
-    r: random(0.6, 2.0),
-    base: random(180, 255),
-  }));
+  stars = Array.from({ length: 100 }, () => {
+    const y = random() * random() * height;
+    const base = random(180, 255);
+    return {
+      x: random(width),
+      y,
+      r: random(0.6, 2.0),
+      base,
+      phase: random(TWO_PI),
+      speed: random(0.05, 0.2),
+      twinkleAmp: random(2.25, 2.4),
+    };
+  });
 }
 
-function drawStarsLayer() {
+// Shooting star logic adpeted from perplexity
+// Link - https://www.perplexity.ai/search/i-m-working-on-a-p5js-project-oPp2gsb9QYCPPUMrNgfWPg#2
+function spawnShootingStar(now) {
+  const speed = random(7, 12);
+  const angle = radians(random(20, 35));
+  const vx = speed * cos(angle);
+  const vy = speed * sin(angle);
+
+  shootingStars.push({
+    x: random(-width * 0.2, width * 0.6),
+    y: random(-height * 0.1, height * 0.35),
+    vx,
+    vy,
+    invSpeed: 1 / speed,
+    life: random(420, 700),
+    born: now,
+    len: random(60, 120),
+    thickness: random(1.2, 2.2),
+  });
+}
+
+function updateVisibility() {
+  const viewTop = constrain(yScroll, 0, maxYScroll);
+
+  return !(height < viewTop - 100 || 0 > viewTop + windowHeight + 100);
+}
+
+export function drawStarsLayer() {
+  cachedVisibility = updateVisibility();
+  if (!cachedVisibility) return;
+  const now = millis();
+  perlinT += 0.003;
+
   starLayer.clear();
   starLayer.noStroke();
-  starLayer.drawingContext.shadowBlur = 6;
-  starLayer.drawingContext.shadowColor = "rgba(255,255,255,0.7)";
-  for (const star of stars) {
-    const verticalPositionRatio = constrain(star.y / height, 0, 1);
-    const brightnessFade = lerp(1.0, 0.2, verticalPositionRatio);
-    const grayLevel = star.base * brightnessFade;
-    starLayer.fill(grayLevel, grayLevel, grayLevel, 230);
-    starLayer.circle(star.x, star.y, star.r * 2);
+
+  renderStars();
+
+  updateShootingStarSpawner(now);
+  renderShootingStars(now);
+}
+
+function renderStars() {
+  const ctx = starLayer.drawingContext;
+  for (let i = 0; i < stars.length; i++) {
+    const star = stars[i];
+
+    const yp = constrain(star.y / height, 0, 1);
+    const fade = lerp(1.0, 0.2, yp);
+
+    star.phase += star.speed;
+    const n = noise(star.x * 0.003, star.y * 0.003, perlinT);
+    const twinkle = sin(star.phase) * star.twinkleAmp * (0.6 + 0.4 * n);
+
+    const gray = star.base * fade;
+    const alphaBase = 180 + 60 * (0.5 + 0.5 * twinkle);
+    const sizePulse = 1.0 + 0.4 * (0.5 + 0.5 * twinkle);
+
+    starLayer.push();
+    ctx.shadowBlur = 14 + 10 * (0.5 + 0.5 * twinkle);
+    ctx.shadowColor = "rgba(255,255,255,0.8)";
+    starLayer.fill(gray, gray, gray, alphaBase);
+    starLayer.circle(star.x, star.y, star.r * 2 * sizePulse);
+    starLayer.pop();
   }
+}
+
+function updateShootingStarSpawner(now) {
+  if (!cachedVisibility) return;
+  if (now - lastShootTime > nextShootIn) {
+    spawnShootingStar(now);
+    lastShootTime = now;
+    nextShootIn = random(350, 900);
+  }
+}
+
+function renderShootingStars(now) {
+  const ctx = starLayer.drawingContext;
+  starLayer.push();
+  ctx.globalCompositeOperation = "source-over";
+
+  for (let i = shootingStars.length - 1; i >= 0; i--) {
+    const s = shootingStars[i];
+    const age = now - s.born;
+    const t = constrain(age / s.life, 0, 1);
+
+    s.x += s.vx;
+    s.y += s.vy;
+
+    const fade = sin(PI * t);
+
+    const ux = s.vx * s.invSpeed;
+    const uy = s.vy * s.invSpeed;
+
+    const trailScale = s.len * (0.6 + 0.4 * fade);
+    const trailDX = -ux * trailScale;
+    const trailDY = -uy * trailScale;
+
+    const aHead = 220 * fade;
+    const rHead = 255,
+      gHead = 255,
+      bHead = 255;
+    const rTail = 180,
+      gTail = 210,
+      bTail = 255;
+    const aTail = aHead * 0.05;
+
+    starLayer.noFill();
+    starLayer.strokeWeight(s.thickness);
+
+    for (let j = 0; j < 10; j++) {
+      const u1 = j / 10;
+      const u2 = (j + 1) / 10;
+
+      const x1 = s.x + trailDX * u1;
+      const y1 = s.y + trailDY * u1;
+      const x2 = s.x + trailDX * u2;
+      const y2 = s.y + trailDY * u2;
+
+      const rr = lerp(rHead, rTail, u1);
+      const gg = lerp(gHead, gTail, u1);
+      const bb = lerp(bHead, bTail, u1);
+      const aa = lerp(aHead, aTail, u1);
+      starLayer.stroke(rr, gg, bb, aa);
+      starLayer.line(x1, y1, x2, y2);
+    }
+
+    starLayer.noStroke();
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = "rgba(255,255,255,0.9)";
+    starLayer.fill(255, 255, 255, aHead);
+    starLayer.circle(s.x, s.y, 3 + 3 * fade);
+
+    if (age >= s.life || s.x > width + s.len || s.y > height + s.len) {
+      shootingStars.splice(i, 1);
+    }
+  }
+
+  starLayer.pop();
+}
+
+export function isStarsInView() {
+  const layerTop = 0;
+  const layerBottom = height;
+  const viewTop = constrain(yScroll, 0, maxYScroll);
+  const viewBottom = viewTop + windowHeight;
+  return !(layerBottom < viewTop - 100 || layerTop > viewBottom + 100);
 }
