@@ -9,6 +9,8 @@ import {
   drawStarsLayer,
   isStarsInView,
 } from "./layers/stars.js";
+import { setupAudio, startAudio, updateAudioLayers } from "./features/audio.js";
+
 export let yScroll = 0;
 export let maxYScroll = 3328;
 export let hScroll = 0;
@@ -18,7 +20,7 @@ export let squares = [];
 export let stars = [];
 export let clouds = [];
 
-window.setup = function () {
+window.setup = async function () {
   createCanvas(innerWidth, innerHeight);
   noStroke();
   background(20, 30, 60);
@@ -26,6 +28,12 @@ window.setup = function () {
   setupSky();
   setupStars();
   setupClouds();
+
+  await setupAudio();
+};
+
+window.mousePressed = async function () {
+  await startAudio();
 };
 
 window.draw = function () {
@@ -51,6 +59,8 @@ window.draw = function () {
   }
 
   pop();
+
+  updateAudioLayers(yScroll);
 };
 
 function drawGround() {
