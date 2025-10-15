@@ -1,4 +1,4 @@
-import { maxYScroll, maxHScroll } from "../project.js";
+import { maxYScroll, maxXScroll } from "../project.js";
 
 export let cloudLayer;
 export let clouds = [];
@@ -15,7 +15,7 @@ export function setupClouds() {
   for (let i = 0; i < 120; i++) {
     const cloudWidth = random(180, 320);
     clouds.push({
-      x: random(0, width + maxHScroll + 2400),
+      x: random(0, width + maxXScroll + 2400),
       y: random(cloudStartY, cloudEndY),
       cloudWidth,
       cloudHeight: random(80, cloudWidth / 2),

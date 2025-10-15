@@ -14,8 +14,8 @@ import { setupTrees, drawTrees } from "./layers/trees.js";
 
 export let yScroll = 0;
 export let maxYScroll = 3328;
-export let hScroll = 0;
-export let maxHScroll = 2560;
+export let xScroll = 0;
+export let maxXScroll = 2560;
 
 export let squares = [];
 export let stars = [];
@@ -50,10 +50,10 @@ window.draw = function () {
     if (cloudYOffset < 0) cloudYOffset = 0;
     image(cloudLayer, 0, -cloudYOffset);
   } else {
-    translate(-hScroll, -maxYScroll);
+    translate(-xScroll, -maxYScroll);
     drawSky();
     drawGround();
-    image(cloudLayer, -hScroll, -(maxYScroll - 1200));
+    image(cloudLayer, -xScroll, -(maxYScroll - 1200));
   }
   drawStarsLayer();
   if (isStarsInView()) {
@@ -75,11 +75,11 @@ window.mouseWheel = function (event) {
   if (yScroll < maxYScroll) {
     yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
   } else {
-    if (event.deltaY > 0 || hScroll > 0) {
-      hScroll = constrain(hScroll + event.deltaY, 0, maxHScroll);
-      if (hScroll <= 0 && event.deltaY < 0) {
+    if (event.deltaY > 0 || xScroll > 0) {
+      xScroll = constrain(xScroll + event.deltaY, 0, maxXScroll);
+      if (xScroll <= 0 && event.deltaY < 0) {
         yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
-        hScroll = 0;
+        xScroll = 0;
       }
     } else {
       yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);

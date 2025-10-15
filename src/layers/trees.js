@@ -1,4 +1,4 @@
-import { maxYScroll, maxHScroll } from "../project.js";
+import { maxYScroll, maxXScroll } from "../project.js";
 
 let treeData = [];
 
@@ -16,7 +16,7 @@ export function setupTrees() {
 
   for (let layer = 0; layer < 4; layer++) {
     const numTrees = treeCounts[layer];
-    const sectionWidth = (width + maxHScroll) / numTrees;
+    const sectionWidth = (width + maxXScroll) / numTrees;
 
     for (let i = 0; i < numTrees; i++) {
       const x =

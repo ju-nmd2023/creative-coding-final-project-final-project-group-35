@@ -1,4 +1,4 @@
-import { maxYScroll, maxHScroll } from "../project.js";
+import { maxYScroll, maxXScroll } from "../project.js";
 
 export function drawFields() {
   const fieldColors = [
@@ -15,13 +15,13 @@ export function drawFields() {
     fill(fieldColors[i]);
     beginShape();
     vertex(0, baseH + 220 + i * 20);
-    for (let x = 0; x <= width + maxHScroll; x += 15) {
+    for (let x = 0; x <= width + maxXScroll; x += 15) {
       const yoff =
         (i + 1) * 75 + (30 + i * 5) * sin(x * (0.002 + 0.0005 * i) + i * 1.5);
       const y = baseH - i * 100 + yoff;
       vertex(x, y);
     }
-    vertex(width + maxHScroll, baseH + 220 + i * 20);
+    vertex(width + maxXScroll, baseH + 220 + i * 20);
     endShape(CLOSE);
   }
   pop();

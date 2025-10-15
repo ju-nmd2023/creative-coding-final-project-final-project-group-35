@@ -1,8 +1,8 @@
 import {
   yScroll,
   maxYScroll,
-  hScroll,
-  maxHScroll,
+  xScroll,
+  maxXScroll,
   squares,
 } from "../project.js";
 
@@ -14,7 +14,7 @@ export function setupSky() {
   squares.length = 0;
   for (let i = 0; i < totalSquares; i++) {
     const size = random(minSize, maxSize);
-    const x = random(-size / 2, width + maxHScroll - size / 2);
+    const x = random(-size / 2, width + maxXScroll - size / 2);
     const y = random(-size / 2, height + maxYScroll - size / 2);
     const r = random(18, 32),
       g = random(30, 54),
@@ -27,7 +27,7 @@ export function setupSky() {
 
 export function drawSky() {
   const yOffset = yScroll < maxYScroll ? yScroll : maxYScroll;
-  const xOffset = yScroll < maxYScroll ? 0 : hScroll;
+  const xOffset = yScroll < maxYScroll ? 0 : xScroll;
   for (const square of squares) {
     if (
       square.x + square.size * 2 > xOffset &&
