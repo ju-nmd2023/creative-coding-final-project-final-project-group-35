@@ -10,6 +10,7 @@ import {
   isStarsInView,
 } from "./layers/stars.js";
 import { setupAudio, startAudio, updateAudioLayers } from "./features/audio.js";
+import { setupTrees, drawTrees } from "./layers/trees.js";
 
 export let yScroll = 0;
 export let maxYScroll = 3328;
@@ -28,6 +29,7 @@ window.setup = async function () {
   setupSky();
   setupStars();
   setupClouds();
+  setupTrees();
 
   await setupAudio();
 };
@@ -66,6 +68,7 @@ window.draw = function () {
 function drawGround() {
   drawMountain();
   drawFields();
+  drawTrees();
 }
 
 window.mouseWheel = function (event) {
