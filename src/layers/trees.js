@@ -130,21 +130,57 @@ function drawTree(
   }));
 
   noStroke();
+
+  // Pre-generate random values using the seed;
+  // otherwise interferes with global random state (e.g., falling star positions)
+  // This fix was achieved with the help of perplexity after commit 641a556
+  // Link - https://www.perplexity.ai/search/when-i-drawtrees-function-in-t-3JJI__BqTUSk7j4PCF0sZg
   randomSeed(colorSeed);
-  for (let foliage of foliageCenters) {
+  const foliageData = foliageCenters.map((foliage) => {
+    const particles = [];
     for (let i = 0; i < 18; i++) {
-      const angle = random(TWO_PI);
-      const radius = random(foliage.r * 0.7, foliage.r);
-      fill(random(90, 150), random(45, 80), random(90, 150), 120 + random(70));
+      particles.push({
+        angle: random(TWO_PI),
+        radius: random(foliage.r * 0.7, foliage.r),
+        color: [
+          random(90, 150),
+          random(45, 80),
+          random(90, 150),
+          120 + random(70),
+        ],
+        size: [random(24, 34), random(23, 31)],
+      });
+    }
+    return {
+      particles,
+      centerColor: [
+        random(60, 80),
+        random(30, 50),
+        random(60, 80),
+        160 + random(35),
+      ],
+      foliage,
+    };
+  });
+
+  randomSeed(millis());
+
+  for (let data of foliageData) {
+    for (let particle of data.particles) {
+      fill(...particle.color);
       ellipse(
-        foliage.x + cos(angle) * radius,
-        foliage.y + sin(angle) * radius,
-        random(24, 34),
-        random(23, 31)
+        data.foliage.x + cos(particle.angle) * particle.radius,
+        data.foliage.y + sin(particle.angle) * particle.radius,
+        ...particle.size
       );
     }
-    fill(random(60, 80), random(30, 50), random(60, 80), 160 + random(35));
-    ellipse(foliage.x, foliage.y, foliage.r * 1.1, foliage.r * 1.03);
+    fill(...data.centerColor);
+    ellipse(
+      data.foliage.x,
+      data.foliage.y,
+      data.foliage.r * 1.1,
+      data.foliage.r * 1.03
+    );
   }
 
   pop();
