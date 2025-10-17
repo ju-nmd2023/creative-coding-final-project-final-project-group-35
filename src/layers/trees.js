@@ -12,7 +12,7 @@ function getFieldSurfaceY(x, i = layerIndex) {
 export function setupTrees() {
   treeData = [];
 
-  const treeCounts = [5, 3, 2, 1];
+  const treeCounts = [8, 6, 4, 3];
 
   for (let layer = 0; layer < 4; layer++) {
     const numTrees = treeCounts[layer];
@@ -34,6 +34,7 @@ export function setupTrees() {
         freq2: random(1.5, 4.7),
         phase2: random(TWO_PI),
         colorSeed: random(1000),
+        colorType: random(["green", "blue", "purple", "teal"]),
       });
     }
   }
@@ -53,7 +54,8 @@ export function drawTrees() {
       tree.amp2,
       tree.freq2,
       tree.phase2,
-      tree.colorSeed
+      tree.colorSeed,
+      tree.colorType
     );
   }
 }
@@ -68,7 +70,8 @@ function drawTree(
   amp2,
   freq2,
   phase2,
-  colorSeed
+  colorSeed,
+  colorType
 ) {
   push();
   translate(posX, posY);
@@ -137,6 +140,27 @@ function drawTree(
   // Link - https://www.perplexity.ai/search/when-i-drawtrees-function-in-t-3JJI__BqTUSk7j4PCF0sZg
   randomSeed(colorSeed);
 
+  let smallParticleColors, largeEllipseColors;
+
+  switch (colorType) {
+    case "green":
+      smallParticleColors = { r: [90, 150], g: [45, 80], b: [90, 150] };
+      largeEllipseColors = { r: [60, 80], g: [30, 50], b: [60, 80] };
+      break;
+    case "blue":
+      smallParticleColors = { r: [60, 100], g: [80, 120], b: [130, 180] };
+      largeEllipseColors = { r: [40, 70], g: [60, 90], b: [100, 140] };
+      break;
+    case "purple":
+      smallParticleColors = { r: [100, 140], g: [50, 90], b: [120, 160] };
+      largeEllipseColors = { r: [70, 100], g: [30, 60], b: [80, 120] };
+      break;
+    case "teal":
+      smallParticleColors = { r: [50, 90], g: [110, 150], b: [120, 160] };
+      largeEllipseColors = { r: [30, 60], g: [80, 110], b: [90, 130] };
+      break;
+  }
+
   for (const fc of foliageCenters) {
     for (let j = 0; j < 18; j++) {
       const ang = random(TWO_PI);
@@ -149,12 +173,22 @@ function drawTree(
         map(noise(fx * 0.01, fy * 0.01, time), 0, 1, -18, 18),
         map(noise(fx * 0.01 + 100, fy * 0.01 + 100, time), 0, 1, -10, 10)
       );
-      fill(random(90, 150), random(45, 80), random(90, 150), 120 + random(70));
+      fill(
+        random(smallParticleColors.r[0], smallParticleColors.r[1]),
+        random(smallParticleColors.g[0], smallParticleColors.g[1]),
+        random(smallParticleColors.b[0], smallParticleColors.b[1]),
+        120 + random(70)
+      );
       ellipse(fx, fy, random(24, 34), random(23, 31));
       pop();
     }
 
-    fill(random(60, 80), random(30, 50), random(60, 80), 160 + random(35));
+    fill(
+      random(largeEllipseColors.r[0], largeEllipseColors.r[1]),
+      random(largeEllipseColors.g[0], largeEllipseColors.g[1]),
+      random(largeEllipseColors.b[0], largeEllipseColors.b[1]),
+      160 + random(35)
+    );
     ellipse(fc.x, fc.y, fc.r * 1.1, fc.r * 1.03);
   }
 
