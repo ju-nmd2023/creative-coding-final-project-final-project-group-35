@@ -25,12 +25,15 @@ export let clouds = [];
 
 export let handPose;
 export let video;
+
+let lenis;
+
 window.preload = function () {
   handPose = ml5.handPose();
 };
 
 window.setup = async function () {
-  createCanvas(innerWidth, innerHeight);
+  createCanvas(windowWidth, windowHeight);
   noStroke();
   background(20, 30, 60);
 
@@ -46,6 +49,33 @@ window.setup = async function () {
   handPose.detectStart(video, gotHands);
   await setupMorph(handPose);
   await setupAudio();
+
+  // Initialize Lenis (smooth scrolling)
+  // Documentation - https://github.com/darkroomengineering/lenis
+  lenis = new Lenis({
+    lerp: 0.1,
+    smoothWheel: true,
+    wheelMultiplier: 1,
+    touchMultiplier: 1,
+  });
+
+  lenis.on("scroll", (e) => {
+    const totalScroll = e.animatedScroll;
+
+    if (totalScroll < maxYScroll) {
+      yScroll = totalScroll;
+      xScroll = 0;
+    } else {
+      yScroll = maxYScroll;
+      xScroll = Math.min(totalScroll - maxYScroll, maxXScroll);
+    }
+  });
+
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
 };
 
 window.mousePressed = async function () {
@@ -93,19 +123,6 @@ function drawGround() {
   drawTrees();
 }
 
-window.mouseWheel = function (event) {
-  if (yScroll < maxYScroll) {
-    yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
-  } else {
-    if (event.deltaY > 0 || xScroll > 0) {
-      xScroll = constrain(xScroll + event.deltaY, 0, maxXScroll);
-      if (xScroll <= 0 && event.deltaY < 0) {
-        yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
-        xScroll = 0;
-      }
-    } else {
-      yScroll = constrain(yScroll + event.deltaY, 0, maxYScroll);
-    }
-  }
-  return false;
+window.windowResized = function () {
+  resizeCanvas(windowWidth, windowHeight);
 };
