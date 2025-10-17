@@ -12,6 +12,7 @@ import {
 import { setupAudio, startAudio, updateAudioLayers } from "./features/audio.js";
 import { setupTrees, drawTrees } from "./layers/trees.js";
 import { setupMorph, drawMorph, gotHands } from "./features/morph.js";
+import drawStartScreen from "./features/start.js";
 
 export let yScroll = 0;
 export let maxYScroll = 3328;
@@ -27,6 +28,7 @@ export let handPose;
 export let video;
 
 let lenis;
+let gameStarted = false;
 
 window.preload = function () {
   handPose = ml5.handPose();
@@ -60,6 +62,8 @@ window.setup = async function () {
   });
 
   lenis.on("scroll", (e) => {
+    if (!gameStarted) return;
+
     const totalScroll = e.animatedScroll;
 
     if (totalScroll < maxYScroll) {
@@ -79,6 +83,16 @@ window.setup = async function () {
 };
 
 window.mousePressed = async function () {
+  if (!gameStarted) {
+    gameStarted = true;
+    await startAudio();
+
+    if (Tone.context.state !== "running") {
+      await Tone.context.resume();
+    }
+    return;
+  }
+
   await startAudio();
 
   if (Tone.context.state !== "running") {
@@ -115,6 +129,10 @@ window.draw = function () {
 
   drawMorph(yScroll);
   updateAudioLayers(yScroll);
+
+  if (!gameStarted) {
+    drawStartScreen();
+  }
 };
 
 function drawGround() {
