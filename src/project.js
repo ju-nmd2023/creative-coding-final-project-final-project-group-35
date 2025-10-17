@@ -41,6 +41,9 @@ window.mousePressed = async function () {
 window.draw = function () {
   background(20, 30, 60);
 
+  const now = millis();
+  drawStarsLayer(now);
+
   push();
   if (yScroll < maxYScroll) {
     translate(0, -yScroll);

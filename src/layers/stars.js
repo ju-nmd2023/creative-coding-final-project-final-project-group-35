@@ -59,10 +59,9 @@ function updateVisibility() {
   return !(height < viewTop - 100 || 0 > viewTop + windowHeight + 100);
 }
 
-export function drawStarsLayer() {
+export function drawStarsLayer(now) {
   cachedVisibility = updateVisibility();
   if (!cachedVisibility) return;
-  const now = millis();
   perlinT += 0.003;
 
   starLayer.clear();
