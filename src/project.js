@@ -17,6 +17,7 @@ export let yScroll = 0;
 export let maxYScroll = 3328;
 export let xScroll = 0;
 export let maxXScroll = 2560;
+export let time = 0;
 
 export let squares = [];
 export let stars = [];
@@ -57,6 +58,7 @@ window.mousePressed = async function () {
 
 window.draw = function () {
   background(20, 30, 60);
+  time += 0.01;
 
   const now = millis();
   drawStarsLayer(now);

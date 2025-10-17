@@ -1,4 +1,4 @@
-import { maxYScroll, maxXScroll } from "../project.js";
+import { maxYScroll, maxXScroll, time } from "../project.js";
 
 let treeData = [];
 
@@ -136,52 +136,29 @@ function drawTree(
   // This fix was achieved with the help of perplexity after commit 641a556
   // Link - https://www.perplexity.ai/search/when-i-drawtrees-function-in-t-3JJI__BqTUSk7j4PCF0sZg
   randomSeed(colorSeed);
-  const foliageData = foliageCenters.map((foliage) => {
-    const particles = [];
-    for (let i = 0; i < 18; i++) {
-      particles.push({
-        angle: random(TWO_PI),
-        radius: random(foliage.r * 0.7, foliage.r),
-        color: [
-          random(90, 150),
-          random(45, 80),
-          random(90, 150),
-          120 + random(70),
-        ],
-        size: [random(24, 34), random(23, 31)],
-      });
+
+  for (const fc of foliageCenters) {
+    for (let j = 0; j < 18; j++) {
+      const ang = random(TWO_PI);
+      const rad = random(fc.r * 0.7, fc.r);
+      const fx = fc.x + cos(ang) * rad;
+      const fy = fc.y + sin(ang) * rad;
+
+      push();
+      translate(
+        map(noise(fx * 0.01, fy * 0.01, time), 0, 1, -18, 18),
+        map(noise(fx * 0.01 + 100, fy * 0.01 + 100, time), 0, 1, -10, 10)
+      );
+      fill(random(90, 150), random(45, 80), random(90, 150), 120 + random(70));
+      ellipse(fx, fy, random(24, 34), random(23, 31));
+      pop();
     }
-    return {
-      particles,
-      centerColor: [
-        random(60, 80),
-        random(30, 50),
-        random(60, 80),
-        160 + random(35),
-      ],
-      foliage,
-    };
-  });
+
+    fill(random(60, 80), random(30, 50), random(60, 80), 160 + random(35));
+    ellipse(fc.x, fc.y, fc.r * 1.1, fc.r * 1.03);
+  }
 
   randomSeed(millis());
-
-  for (let data of foliageData) {
-    for (let particle of data.particles) {
-      fill(...particle.color);
-      ellipse(
-        data.foliage.x + cos(particle.angle) * particle.radius,
-        data.foliage.y + sin(particle.angle) * particle.radius,
-        ...particle.size
-      );
-    }
-    fill(...data.centerColor);
-    ellipse(
-      data.foliage.x,
-      data.foliage.y,
-      data.foliage.r * 1.1,
-      data.foliage.r * 1.03
-    );
-  }
 
   pop();
 }
