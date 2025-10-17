@@ -11,6 +11,7 @@ import {
 } from "./layers/stars.js";
 import { setupAudio, startAudio, updateAudioLayers } from "./features/audio.js";
 import { setupTrees, drawTrees } from "./layers/trees.js";
+import { setupMorph, drawMorph, gotHands } from "./features/morph.js";
 
 export let yScroll = 0;
 export let maxYScroll = 3328;
@@ -20,6 +21,12 @@ export let maxXScroll = 2560;
 export let squares = [];
 export let stars = [];
 export let clouds = [];
+
+export let handPose;
+export let video;
+window.preload = function () {
+  handPose = ml5.handPose();
+};
 
 window.setup = async function () {
   createCanvas(innerWidth, innerHeight);
@@ -31,11 +38,21 @@ window.setup = async function () {
   setupClouds();
   setupTrees();
 
+  video = createCapture(VIDEO);
+  video.size(640, 480);
+  video.hide();
+
+  handPose.detectStart(video, gotHands);
+  await setupMorph(handPose);
   await setupAudio();
 };
 
 window.mousePressed = async function () {
   await startAudio();
+
+  if (Tone.context.state !== "running") {
+    await Tone.context.resume();
+  }
 };
 
 window.draw = function () {
@@ -58,13 +75,13 @@ window.draw = function () {
     drawGround();
     image(cloudLayer, -xScroll, -(maxYScroll - 1200));
   }
-  drawStarsLayer();
   if (isStarsInView()) {
     image(starLayer, 0, 0);
   }
 
   pop();
 
+  drawMorph(yScroll);
   updateAudioLayers(yScroll);
 };
 
