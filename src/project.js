@@ -8,6 +8,7 @@ import {
   starLayer,
   drawStarsLayer,
   isStarsInView,
+  shootingStarLayer,
 } from "./layers/stars.js";
 import { setupAudio, startAudio, updateAudioLayers } from "./features/audio.js";
 import { setupTrees, drawTrees } from "./layers/trees.js";
@@ -121,8 +122,10 @@ window.draw = function () {
     drawGround();
     image(cloudLayer, -xScroll, -(maxYScroll - 1200));
   }
+
   if (isStarsInView()) {
     image(starLayer, 0, 0);
+    image(shootingStarLayer, 0, 0);
   }
 
   pop();

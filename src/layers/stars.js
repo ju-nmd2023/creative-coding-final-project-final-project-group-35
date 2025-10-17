@@ -1,23 +1,26 @@
 import { yScroll, maxYScroll } from "../project.js";
 
 export let starLayer;
+export let shootingStarLayer;
 export let stars = [];
 let shootingStars = [];
 let perlinT = 0;
 let lastShootTime = 0;
 let nextShootIn = 350;
 let cachedVisibility = false;
+let frameCounter = 0;
 
 export function setupStars() {
   starLayer = createGraphics(width, height);
+  shootingStarLayer = createGraphics(width, height);
   initializeStars();
-  drawStarsLayer();
+  renderStars();
 }
 
 // Glowing star logic adpeted from perplexity
 // Link - https://www.perplexity.ai/search/i-m-working-on-a-p5js-project-oPp2gsb9QYCPPUMrNgfWPg#2
 function initializeStars() {
-  stars = Array.from({ length: 100 }, () => {
+  stars = Array.from({ length: 70 }, () => {
     const y = random() * random() * height;
     const base = random(180, 255);
     return {
@@ -62,26 +65,33 @@ function updateVisibility() {
 export function drawStarsLayer(now) {
   cachedVisibility = updateVisibility();
   if (!cachedVisibility) return;
+
+  frameCounter++;
   perlinT += 0.003;
 
-  starLayer.clear();
-  starLayer.noStroke();
+  if (frameCounter % 6 === 0) {
+    renderStars();
+  }
 
-  renderStars();
-
+  shootingStarLayer.clear();
   updateShootingStarSpawner(now);
   renderShootingStars(now);
 }
 
 function renderStars() {
   const ctx = starLayer.drawingContext;
+  starLayer.clear();
+  starLayer.noStroke();
+
+  ctx.shadowColor = "rgba(255,255,255,0.7)";
+
   for (let i = 0; i < stars.length; i++) {
     const star = stars[i];
 
     const yp = constrain(star.y / height, 0, 1);
-    const fade = lerp(1.0, 0.2, yp);
+    const fade = 1.0 - yp * 0.8;
 
-    star.phase += star.speed;
+    star.phase += star.speed * 6;
     const n = noise(star.x * 0.003, star.y * 0.003, perlinT);
     const twinkle = sin(star.phase) * star.twinkleAmp * (0.6 + 0.4 * n);
 
@@ -89,7 +99,8 @@ function renderStars() {
     const alphaBase = 180 + 60 * (0.5 + 0.5 * twinkle);
     const sizePulse = 1.0 + 0.4 * (0.5 + 0.5 * twinkle);
 
-    starLayer.push();
+    ctx.shadowBlur = 10 + 6 * (0.5 + 0.5 * twinkle);
+
     ctx.shadowBlur = 14 + 10 * (0.5 + 0.5 * twinkle);
     ctx.shadowColor = "rgba(255,255,255,0.8)";
     starLayer.fill(gray, gray, gray, alphaBase);
@@ -108,8 +119,8 @@ function updateShootingStarSpawner(now) {
 }
 
 function renderShootingStars(now) {
-  const ctx = starLayer.drawingContext;
-  starLayer.push();
+  const ctx = shootingStarLayer.drawingContext;
+  shootingStarLayer.push();
   ctx.globalCompositeOperation = "source-over";
 
   for (let i = shootingStars.length - 1; i >= 0; i--) {
@@ -138,38 +149,39 @@ function renderShootingStars(now) {
       bTail = 255;
     const aTail = aHead * 0.05;
 
-    starLayer.noFill();
-    starLayer.strokeWeight(s.thickness);
+    shootingStarLayer.noFill();
+    shootingStarLayer.strokeWeight(s.thickness);
 
-    for (let j = 0; j < 10; j++) {
-      const u1 = j / 10;
-      const u2 = (j + 1) / 10;
+    for (let j = 0; j < 6; j++) {
+      const u1 = j / 6;
+      const u2 = (j + 1) / 6;
 
       const x1 = s.x + trailDX * u1;
       const y1 = s.y + trailDY * u1;
       const x2 = s.x + trailDX * u2;
       const y2 = s.y + trailDY * u2;
 
-      const rr = lerp(rHead, rTail, u1);
-      const gg = lerp(gHead, gTail, u1);
-      const bb = lerp(bHead, bTail, u1);
-      const aa = lerp(aHead, aTail, u1);
-      starLayer.stroke(rr, gg, bb, aa);
-      starLayer.line(x1, y1, x2, y2);
+      const rr = rHead + (rTail - rHead) * u1;
+      const gg = gHead + (gTail - gHead) * u1;
+      const bb = bHead + (bTail - bHead) * u1;
+      const aa = aHead + (aTail - aHead) * u1;
+
+      shootingStarLayer.stroke(rr, gg, bb, aa);
+      shootingStarLayer.line(x1, y1, x2, y2);
     }
 
-    starLayer.noStroke();
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = "rgba(255,255,255,0.9)";
-    starLayer.fill(255, 255, 255, aHead);
-    starLayer.circle(s.x, s.y, 3 + 3 * fade);
+    shootingStarLayer.noStroke();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = "rgba(255,255,255,0.7)";
+    shootingStarLayer.fill(255, 255, 255, aHead);
+    shootingStarLayer.circle(s.x, s.y, 3 + 2.5 * fade);
 
     if (age >= s.life || s.x > width + s.len || s.y > height + s.len) {
       shootingStars.splice(i, 1);
     }
   }
 
-  starLayer.pop();
+  shootingStarLayer.pop();
 }
 
 export function isStarsInView() {
