@@ -14,6 +14,7 @@ import { setupAudio, startAudio, updateAudioLayers } from "./features/audio.js";
 import { setupTrees, drawTrees } from "./layers/trees.js";
 import { setupMorph, drawMorph, gotHands } from "./features/morph.js";
 import drawStartScreen from "./features/start.js";
+import { setupWindParticles, drawWindParticles } from "./layers/wind.js";
 
 export let yScroll = 0;
 export let maxYScroll = 3328;
@@ -44,6 +45,7 @@ window.setup = async function () {
   setupStars();
   setupClouds();
   setupTrees();
+  setupWindParticles();
 
   video = createCapture(VIDEO);
   video.size(640, 480);
@@ -116,11 +118,13 @@ window.draw = function () {
     let cloudYOffset = yScroll - 1200;
     if (cloudYOffset < 0) cloudYOffset = 0;
     image(cloudLayer, 0, -cloudYOffset);
+    drawWindParticles(0, yScroll);
   } else {
     translate(-xScroll, -maxYScroll);
     drawSky();
     drawGround();
     image(cloudLayer, -xScroll, -(maxYScroll - 1200));
+    drawWindParticles(xScroll, maxYScroll);
   }
 
   if (isStarsInView()) {
